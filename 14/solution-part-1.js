@@ -6,19 +6,20 @@ const solution = solve(input);
 console.log(solution);
 
 function solve(rows) {
-  const numColumns = rows[0].length;
-  const columnLoads = Array(numColumns).fill(0);
+  const numRows = rows.length;
+  const numCols = rows[0].length;
+  const columnLoads = Array(numCols).fill(0);
 
-  for (let x = 0; x < numColumns; x++) {
+  for (let x = 0; x < numCols; x++) {
     let solidRockPos = -1;
     let roundRockCount = 0;
-    for (let y = 0; y < rows.length; y++) {
+    for (let y = 0; y < numRows; y++) {
       const char = rows[y][x];
       if (char === 'O') {
         roundRockCount++;
       }
-      if (char === '#' || y === rows.length - 1) {
-        const partialColumnLoad = calculatePartialColumnLoad(rows.length, solidRockPos, roundRockCount);
+      if (char === '#' || y === numRows - 1) {
+        const partialColumnLoad = calculatePartialColumnLoad(numRows, solidRockPos, roundRockCount);
         columnLoads[x] += partialColumnLoad;
         solidRockPos = y;
         roundRockCount = 0;
@@ -31,6 +32,6 @@ function solve(rows) {
 function calculatePartialColumnLoad(numRows, position, roundRockCount) {
   return sum(
       [...Array(roundRockCount).keys()]
-          .map(y => numRows - position - y - 1)
+          .map(y => numRows - position - y - 1),
   );
 }
