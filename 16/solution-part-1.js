@@ -2,10 +2,10 @@ import { readInputFileAsLines } from '../utils/file-utils.js';
 import * as assert from 'assert';
 import { sum } from '../utils/number-utils.js';
 
-const UP = 0;
-const LEFT = 1;
-const DOWN = 2;
-const RIGHT = 3;
+export const UP = 0;
+export const LEFT = 1;
+export const DOWN = 2;
+export const RIGHT = 3;
 
 const testInput = readInputFileAsLines('test-input.txt');
 assert.equal(solve(testInput), 46, 'Test input solution is not correct!');
@@ -15,6 +15,10 @@ const solution = solve(input);
 console.log(solution);
 
 function solve(grid) {
+  return solveForStartingTileAndDirection(grid, 0, 0, RIGHT);
+}
+
+export function solveForStartingTileAndDirection(grid, startX, startY, direction) {
   const cache = new Map();
   for (let y = 0; y < grid.length; y++) {
     cache.set(y, new Map());
@@ -23,17 +27,17 @@ function solve(grid) {
     }
   }
   const beamQueue = [];
-  followBeam({x: 0, y: 0, direction: RIGHT}, grid, cache, beamQueue);
+  followBeam({x: startX, y: startY, direction}, grid, cache, beamQueue);
   while (beamQueue.length > 0) {
     const nextPosition = beamQueue.shift();
     followBeam(nextPosition, grid, cache, beamQueue);
   }
-  return calculateTotalNumberOfEnergizedTiles(cache);
+  return calculateTotalNumberOfEnergizedTiles(cache, startX, startY);
 }
 
-function calculateTotalNumberOfEnergizedTiles(cache) {
+function calculateTotalNumberOfEnergizedTiles(cache, startX, startY) {
   return sum([...cache.keys()].map(y => [...cache.get(y).values()].filter(map => map.size > 0).length))
-      + (cache.get(0).get(0).size === 0 ? 1 : 0);
+      + (cache.get(startY).get(startX).size === 0 ? 1 : 0);
 }
 
 function followBeam({x, y, direction}, grid, cache, beamQueue) {
