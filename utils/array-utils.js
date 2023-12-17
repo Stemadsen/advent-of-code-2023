@@ -8,6 +8,14 @@ export function clone2dArray(array) {
   return array.map((row) => [...row]);
 }
 
+export function rotate2dArrayCounterClockwise(array) {
+  const rotatedGrid = [];
+  for (let i = 0; i < array[0].length; i++) {
+    rotatedGrid.push(array.map((row) => row[i]).reverse().join(''));
+  }
+  return rotatedGrid;
+}
+
 export function hashArray(array) {
   return crypto.createHash('sha256')
       .update(JSON.stringify(array))
