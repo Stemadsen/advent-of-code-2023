@@ -4,6 +4,10 @@ export function range(length) {
   return new Array(length).fill(0).map((_, i) => i);
 }
 
+export function zip(A, B) {
+  return A.map((a, i) => [a, B[i]]);
+}
+
 export function clone2dArray(array) {
   return array.map((row) => [...row]);
 }
