@@ -4,7 +4,7 @@ import { zip } from '../utils/array-utils.js';
 import { sum } from '../utils/number-utils.js';
 
 const testInput = readInputFileAsLines('test-input.txt');
-assert.equal(solve(testInput), 62, 'Test input solution is not correct!');
+assert.equal(solve(testInput), 952408144115, 'Test input solution is not correct!');
 
 const input = readInputFileAsLines();
 console.log(solve(input));
@@ -27,13 +27,12 @@ function getPoints(instructions) {
 }
 
 function getNewPoint(currentPoint, instruction) {
-  let [direction, distance, colorCode] = instruction.split(' ');
-  distance = parseInt(distance, 10);
-  switch (direction) {
-    case 'R': return { x: currentPoint.x + distance, y: currentPoint.y };
-    case 'D': return { x: currentPoint.x, y: currentPoint.y + distance };
-    case 'L': return { x: currentPoint.x - distance, y: currentPoint.y };
-    case 'U': return { x: currentPoint.x, y: currentPoint.y - distance };
+  const parsedInstruction = parseInstruction(instruction);
+  switch (parsedInstruction.direction) {
+    case '0': return { x: currentPoint.x + parsedInstruction.distance, y: currentPoint.y };
+    case '1': return { x: currentPoint.x, y: currentPoint.y + parsedInstruction.distance };
+    case '2': return { x: currentPoint.x - parsedInstruction.distance, y: currentPoint.y };
+    case '3': return { x: currentPoint.x, y: currentPoint.y - parsedInstruction.distance };
   }
 }
 
@@ -42,6 +41,13 @@ function getExtraBoundaryArea(instructions) {
 }
 
 function getLengthOfInstruction(instruction) {
-  let [direction, distance, colorCode] = instruction.split(' ');
-  return ['R', 'D'].includes(direction) ? parseInt(distance, 10) : 0;
+  const parsedInstruction = parseInstruction(instruction);
+  return ['0', '1'].includes(parsedInstruction.direction) ? parsedInstruction.distance : 0;
+}
+
+function parseInstruction(instruction) {
+  const trueInstruction = instruction.split(' ')[2].slice(2, 8);
+  const distance = parseInt(trueInstruction.slice(0, 5), 16);
+  const direction = trueInstruction.slice(5);
+  return { direction, distance };
 }
