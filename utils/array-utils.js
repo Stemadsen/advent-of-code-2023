@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
-export function range(length) {
-  return new Array(length).fill(0).map((_, i) => i);
+export function range(length, start = 0) {
+  return new Array(length).fill(0).map((_, i) => i + start);
 }
 
 export function zip(A, B) {
