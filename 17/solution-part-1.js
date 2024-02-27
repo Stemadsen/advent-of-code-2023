@@ -31,51 +31,53 @@ function buildGraph(grid, height, width) {
   return graph;
 }
 
+// TODO: Currently chooses path from 11,7 to 10,7 (d = 77) instead of 12,7 (d = 74)
+// Probably due to wrong path taken to 12,8:
+// ["0,0","1,0","2,0","2,1","3,1","4,1","5,1","5,0","6,0","7,0","8,0","8,1","8,2","9,2","10,2","10,3","10,4","11,4","11,5","12,5","12,6","12,7","12,8"]
 function dijkstra(graph, startNode, endNode) {
   const distances = new Map();
   const alreadyVisited = new Set();
   const queue = new MinPriorityQueue(node => node.distance);
   queue.enqueue({node: startNode, previousNodes: [], distance: 0});
-  distances.set(stringifyNode({node: startNode, previousNodes: []}), 0);
+  distances.set(startNode, 0);
 
   while (!queue.isEmpty()) {
     const current = queue.dequeue();
     const currentNode = current.node;
     const currentPathJson = stringifyNode(current);
-    if (alreadyVisited.has(currentPathJson)) {
-      console.log(`Already tried: ${currentPathJson}`);
+    if (alreadyVisited.has(currentNode)) {
+      console.log(`Already tried: ${currentNode}`);
       continue;
     }
-    if (isIllegal(current)) {
-      console.log(`Illegal node: ${currentPathJson}`);
-      distances.set(currentPathJson, Infinity);
-      alreadyVisited.add(currentPathJson);
-      continue;
-    }
-    alreadyVisited.add(currentPathJson);
+    alreadyVisited.add(currentNode);
     if (currentNode === endNode) {
-      console.log(`Found solution ${currentPathJson} with distance ${distances.get(currentPathJson)}`);
-      return distances.get(currentPathJson);
+      console.log(`\nFound solution ${currentPathJson} with distance ${distances.get(currentNode)}`);
+      return distances.get(currentNode);
     }
     const neighbors = graph[currentNode];
-    const newPreviousNodes = current.previousNodes.concat(currentNode);
+    const newNodeSequence = current.previousNodes.concat(currentNode);
     for (const neighborNode of neighbors.keys()) {
-      const neighborPathJson = stringifyNode({node: neighborNode, previousNodes: newPreviousNodes});
-      const distance = distances.get(currentPathJson) + neighbors.get(neighborNode);
-      if (distances.has(neighborPathJson) && distance >= distances.get(neighborPathJson)) continue;
-      distances.set(neighborPathJson, distance);
-      queue.enqueue({node: neighborNode, previousNodes: newPreviousNodes, distance});
+      if (isIllegalSequence(newNodeSequence)) {
+        console.log(`Illegal sequence, skipping: ${currentPathJson}`);
+        // distances.set(currentPathJson, Infinity);
+        // alreadyVisited.add(currentPathJson);
+        continue;
+      }
+      const distance = distances.get(currentNode) + neighbors.get(neighborNode);
+      if (distances.has(neighborNode) && distance >= distances.get(neighborNode)) continue;
+      distances.set(neighborNode, distance);
+      queue.enqueue({node: neighborNode, previousNodes: newNodeSequence, distance});
     }
   }
 }
 
-function isIllegal(current) {
-  const coords = current.node.split(',');
-  const x = Number(coords[0]);
-  const y = Number(coords[1]);
-  const previousNodes = current.previousNodes;
-  const numVisited = previousNodes.length;
-  return isAUTurn(x, y, previousNodes, numVisited) || isAStraightLine(x, y, previousNodes, numVisited);
+function isIllegalSequence(moves) {
+  if (moves.length < 2) return false;
+  const lastMove = moves[moves.length - 1].split(',').map(Number);
+  const numVisited = moves.length - 1;
+  const previousNodes = moves.slice(0, numVisited);
+  return isAUTurn(lastMove[0], lastMove[1], previousNodes, numVisited)
+      || isAStraightLine(lastMove[0], lastMove[1], previousNodes, numVisited);
 }
 
 function isAUTurn(x, y, previousNodes, numVisited) {
@@ -90,28 +92,28 @@ function isAStraightLine(x, y, previousNodes, numVisited) {
 }
 
 function isAStraightLineGoingRight(x, y, previousNodes, numVisited) {
-  for (const i of range(3, 1)) {
+  for (const i of range(4, 1)) {
     if (numVisited - i < 0 || previousNodes[numVisited - i] !== `${x - i},${y}`) return false;
   }
   return true;
 }
 
 function isAStraightLineGoingDown(x, y, previousNodes, numVisited) {
-  for (const i of range(3, 1)) {
+  for (const i of range(4, 1)) {
     if (numVisited - i < 0 || previousNodes[numVisited - i] !== `${x},${y - i}`) return false;
   }
   return true;
 }
 
 function isAStraightLineGoingLeft(x, y, previousNodes, numVisited) {
-  for (const i of range(3, 1)) {
+  for (const i of range(4, 1)) {
     if (numVisited - i < 0 || previousNodes[numVisited - i] !== `${x + i},${y}`) return false;
   }
   return true;
 }
 
 function isAStraightLineGoingUp(x, y, previousNodes, numVisited) {
-  for (const i of range(3, 1)) {
+  for (const i of range(4, 1)) {
     if (numVisited - i < 0 || previousNodes[numVisited - i] !== `${x},${y + i}`) return false;
   }
   return true;

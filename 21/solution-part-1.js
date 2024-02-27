@@ -43,8 +43,8 @@ function getNeighbors(x, y, grid) {
   return neighbors;
 }
 
-function findReachableTiles(tilesToNeighbors, fromTile, steps) {
-  let fromTiles = new Set([fromTile]);
+function findReachableTiles(tilesToNeighbors, startTile, steps) {
+  let fromTiles = new Set([startTile]);
   let reachableTiles = new Set();
   for (let i = 0; i < steps; i++) {
     reachableTiles = [...fromTiles].reduce((acc, fromTile) => union(acc, tilesToNeighbors.get(fromTile)), new Set());
